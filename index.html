@@ -1,1 +1,111 @@
-1
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+    </head>
+    <body>
+        <pre>
+IMEI校验码算法：
+(1).将偶数位数字分别乘以2，分别计算个位数和十位数之和
+(2).将奇数位数字相加，再加上上一步算得的值
+(3).如果得出的数个位是0则校验位为0，否则为10减去个位数
+如：35 89 01 80 69 72 41 偶数位乘以2得到5*2=10 9*2=18 1*2=02 0*2=00 9*2=18 2*2=04 1*2=02,计算奇数位数字之和和偶数位个位十位之和，得到 3+(1+0)+8+(1+8)+0+(0+2)+8+(0+0)+6+(1+8)+7+(0+4)+4+(0+2)=63 => 校验位 10-3 = 7
+</pre>
+        <!--35 89 01 80 69 72 41 7-->
+        输入imei前14位:<input type="text" value='35890180697241' />
+		输出校验位:<input type="text" value='' />
+        <button onclick="check()">校验</button><br />
+        <p>批量生成IMEI</p>
+        数量：<input type="text" id="num" value="1" />
+        <button onclick="generate()">生成</button>
+        <div id="box"></div>
+       
+        <script type="text/javascript">
+            var oInput = document.getElementsByTagName("input")[0];
+            function check(){
+                var val = oInput.value;
+                if(val && val.length == 14){
+                    
+                    var res = calLastNum(sumIMEI(val.slice(0,14)))
+                    console.log("校验结果", res);
+					a=document.getElementsByTagName("input")[1];
+					a.value= res;
+                    return res;
+                }else{
+                    console.log("长度有误");
+					a=document.getElementsByTagName("input")[1];
+				    a.value="长度有误"
+                    return false;
+                }
+            }
+            
+            function doubleNum (n){
+                if(n === undefined || n === null){
+                    return "";
+                }
+                n = String(n);
+                if(n.length > 2){
+                    return n
+                }else{
+                    n = "0" + n;
+                    return n.slice(-2);
+                }
+            }
+            
+            function sumIMEI(str){ 
+                var res = 0, tempNum, tempStr;
+                for(let i = 0, len = str.length; i < len; i++){
+                    if(i % 2 == 0){ 
+                        res += Number(str[i]);
+                    } else { 
+                        tempNum = Number(str[i]) * 2;
+                        tempStr = doubleNum(tempNum);
+                        res += Number(tempStr[0]) + Number(tempStr[1]);
+                    }
+                }
+                console.log(res);
+                return res;
+            }
+            
+
+            function calLastNum(num){
+                var temp = String(num);
+                var rightTestNum;
+                console.log(temp.slice(-1));
+                var lastNum = Number(temp.slice(-1));
+                
+                if(lastNum){ 
+                    rightTestNum = 10 - lastNum;
+                }else{ 
+                    rightTestNum = lastNum;
+                }
+				
+                return rightTestNum;
+            }
+            
+            function generate(){
+                var arr = [];
+                var count = Number(document.getElementById("num").value);
+                if(!count){
+                    return arr;
+                }
+                
+                for(let i = 0; i <count; i++){
+                    var str = String(Math.random()).slice(-14);
+                    var num = sumIMEI(str);
+                    var lastNum = calLastNum(num);
+                    arr.push(str + lastNum);
+                }
+                console.log(arr);
+                var oDiv = document.getElementById("box");
+                oDiv.innerHTML = "";
+                arr.forEach(item => {
+                    oDiv.innerHTML += "<p>" + item + "</p>";
+                })
+                
+                return arr;
+            }
+        </script>
+    </body>
+</html>
+源码来源https://www.cnblogs.com/zhaodesheng/p/10268761.html
